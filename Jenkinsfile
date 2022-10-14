@@ -12,6 +12,19 @@ pipeline {
         flask run &
         '''
      }
+      
+     post{
+        success { 
+          slackSend channel: 'jenkinsnotifications',
+                    color: 'good',
+                    message: "Successful Build Stage!"
+        }
+        failure  {
+          slackSend channel: 'jenkinsnotifications',
+                    color: 'warning',
+                    message: "Build Stage Failed!"
+        }
+      }
    }
     stage ('test') {
       steps {
@@ -25,12 +38,33 @@ pipeline {
         always {
           junit 'test-reports/results.xml'
         }
-       
+        success { 
+          slackSend channel: 'jenkinsnotifications',
+                    color: 'good',
+                    message: "Successful Test Stage!"
+        }
+        failure  {
+          slackSend channel: 'jenkinsnotifications',
+                    color: 'warning',
+                    message: "Test Stage Failed!"
+        }
       }
     } 
      stage ('Deploy') {
        steps {
          sh '/var/lib/jenkins/.local/bin/eb deploy Deployment2-main-dev'
+      }
+      post{
+       success { 
+         slackSend channel: 'jenkinsnotifications',
+                    color: 'good',
+                    message: "Successful Deployment Stage!"
+        }
+        failure  {
+          slackSend channel: 'jenkinsnotifications',
+                    color: 'warning',
+                    message: "Deployment Stage Failed!"
+        }
       }
     }
   }
